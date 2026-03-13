@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GovServices - Fix My City</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0fdfa', 100: '#ccfbf1', 200: '#99f6e4', 300: '#5eead4',
+                            400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e',
+                            800: '#115e59', 900: '#134e4a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .page { display: none; }
+        .page.active { display: block; }
+        
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500;
+            color: white; background-color: #0d9488; transition: all 0.2s; cursor: pointer;
+        }
+        .btn:hover { background-color: #0f766e; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .btn-outline {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500;
+            border: 1px solid #cbd5e1; background-color: white; color: #334155;
+            transition: all 0.2s; cursor: pointer;
+        }
+        .btn-outline:hover { background-color: #f8fafc; }
+        .dark .btn-outline { background-color: #1e293b; border-color: #475569; color: #e2e8f0; }
+        .dark .btn-outline:hover { background-color: #334155; }
+
+        .input-field {
+            display: block; w-full; padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem; border: 1px solid #cbd5e1; margin-top: 0.25rem; width: 100%;
+        }
+        .dark .input-field { background-color: #1e293b; border-color: #475569; color: white; }
+
+        .card {
+            background-color: white; border-radius: 0.75rem; border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); overflow: hidden;
+        }
+        .dark .card { background-color: #1e293b; border-color: #334155; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+    <!-- Navigation -->
+    <nav class="bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-50 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center cursor-pointer" onclick="navigate('home')">
+                    <i data-lucide="file-text" class="h-8 w-8 text-primary-600 mr-2"></i>
+                    <span class="font-bold text-xl tracking-tight text-slate-900 dark:text-white">GovServices</span>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleTheme()" class="p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
+                        <i data-lucide="moon" class="h-5 w-5 hidden dark:block"></i>
+                        <i data-lucide="sun" class="h-5 w-5 block dark:hidden"></i>
+                    </button>
+
+                    <div id="nav-logged-out" class="flex items-center space-x-2">
+                        <button onclick="navigate('login')" class="text-slate-600 dark:text-slate-300 hover:text-primary-600 px-3 py-2 font-medium">Log in</button>
+                        <button onclick="navigate('register')" class="btn">Register</button>
+                    </div>
+                    
+                    <div id="nav-logged-in" class="hidden flex items-center space-x-4">
+                        <span id="nav-username" class="text-sm font-medium text-slate-500 dark:text-slate-400 hidden sm:block"></span>
+                        <button onclick="goToDashboard()" class="text-slate-600 dark:text-slate-300 hover:text-primary-600 px-3 py-2 font-medium flex items-center">
+                            <i data-lucide="user" class="h-4 w-4 mr-1"></i> Dashboard
+                        </button>
+                        <button onclick="logout()" class="btn-outline flex items-center py-1.5 px-3 shadow-none">
+                            <i data-lucide="log-out" class="h-4 w-4 mr-1"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow">
+        <!-- Home -->
+        <div id="page-home" class="page active">
+            <div class="relative overflow-hidden bg-primary-900 text-white">
+                <div class="absolute inset-0 bg-gradient-to-r from-primary-900 to-primary-800 opacity-90"></div>
+                <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-24 md:py-32">
+                    <div class="md:w-2/3">
+                        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-6">Official Digital Services Portal</h1>
+                        <p class="mt-4 text-xl text-primary-100 max-w-3xl mb-10 leading-relaxed">
+                            Apply for birth certificates, business licenses, and building approvals online.
+                            Track your application status in real-time with full transparency.
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button onclick="navigate('register')" class="btn bg-white text-primary-900 hover:bg-slate-50 text-base px-8 py-3">Apply Now <i data-lucide="arrow-right" class="ml-2 w-5 h-5"></i></button>
+                            <button onclick="navigate('login')" class="btn-outline border-white text-white hover:bg-primary-800 bg-transparent text-base px-8 py-3">Track Application</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto px-4 py-16">
+                <div class="grid md:grid-cols-3 gap-8 text-center">
+                    <div class="p-6">
+                        <div class="mx-auto w-12 h-12 bg-primary-100 text-primary-600 rounded-lg flex items-center justify-center mb-4"><i data-lucide="file-check" class="w-6 h-6"></i></div>
+                        <h3 class="text-xl font-bold mb-2">Digital Applications</h3>
+                        <p class="text-slate-600 dark:text-slate-400">Skip the line. Apply for permits and certificates from home.</p>
+                    </div>
+                    <div class="p-6">
+                        <div class="mx-auto w-12 h-12 bg-primary-100 text-primary-600 rounded-lg flex items-center justify-center mb-4"><i data-lucide="clock" class="w-6 h-6"></i></div>
+                        <h3 class="text-xl font-bold mb-2">Real-Time Tracking</h3>
+                        <p class="text-slate-600 dark:text-slate-400">Watch your application move through the approval timeline.</p>
+                    </div>
+                    <div class="p-6">
+                        <div class="mx-auto w-12 h-12 bg-primary-100 text-primary-600 rounded-lg flex items-center justify-center mb-4"><i data-lucide="shield" class="w-6 h-6"></i></div>
+                        <h3 class="text-xl font-bold mb-2">Secure & Transparent</h3>
+                        <p class="text-slate-600 dark:text-slate-400">Verified official workflows with strict access controls.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login -->
+        <div id="page-login" class="page">
+            <div class="min-h-[80vh] flex flex-col justify-center py-12 px-4">
+                <div class="sm:mx-auto sm:w-full sm:max-w-md">
+                    <i data-lucide="shield-alert" class="mx-auto h-12 w-12 text-primary-600"></i>
+                    <h2 class="mt-6 text-center text-3xl font-extrabold">Sign in to your account</h2>
+                </div>
+                <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+                    <div class="bg-white dark:bg-slate-800 py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-slate-200 dark:border-slate-700">
+                        <p class="text-xs text-center text-slate-500 mb-6 border-b border-slate-200 dark:border-slate-700 pb-4">
+                            <strong>Demo Roles:</strong><br>
+                            citizen@example.com <br> official@example.com <br> admin@example.com
+                        </p>
+                        <form onsubmit="handleLogin(event)" class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium">Email address</label>
+                                <input id="login-email" type="email" required class="input-field" value="citizen@example.com">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium">Password</label>
+                                <input type="password" required class="input-field" value="password123">
+                            </div>
+                            <button type="submit" class="w-full btn py-3">Sign in</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Citizen Dashboard -->
+        <div id="page-citizen-dashboard" class="page">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+                    <div>
+                        <h1 class="text-2xl font-bold">My Applications</h1>
+                        <p class="text-slate-500 dark:text-slate-400">Track and manage your service requests.</p>
+                    </div>
+                    <button onclick="navigate('apply')" class="btn flex items-center">
+                        <i data-lucide="plus-circle" class="h-5 w-5 mr-2"></i> Apply for Service
+                    </button>
+                </div>
+                <div class="card divide-y divide-slate-200 dark:divide-slate-700" id="citizen-requests-list">
+                    <!-- Cards via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Apply Form -->
+        <div id="page-apply" class="page">
+            <div class="max-w-3xl mx-auto px-4 py-8">
+                <div class="mb-8 border-b border-slate-200 dark:border-slate-700 pb-4">
+                    <h1 class="text-2xl font-bold">New Service Application</h1>
+                </div>
+                <div class="card p-6 sm:p-8">
+                    <form onsubmit="handleApply(event)" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium">Service Type</label>
+                            <select id="apply-type" class="input-field">
+                                <option>Birth Certificate</option>
+                                <option>Business License</option>
+                                <option>Building Approval</option>
+                                <option>Public Service Request</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium">Reason / Details</label>
+                            <textarea id="apply-desc" rows="4" required class="input-field"></textarea>
+                        </div>
+                        <div class="flex justify-end pt-6 gap-4">
+                            <button type="button" onclick="navigate('citizen-dashboard')" class="btn-outline">Cancel</button>
+                            <button type="submit" class="btn">Submit Application</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Official Dashboard -->
+        <div id="page-official-dashboard" class="page">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <div class="mb-8">
+                    <h1 class="text-2xl font-bold">Department Official Dashboard</h1>
+                    <p class="text-slate-500">Manage and process incoming service applications.</p>
+                </div>
+                <div class="card overflow-x-auto">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                            <tr>
+                                <th class="px-6 py-3 font-medium">Application ID</th>
+                                <th class="px-6 py-3 font-medium">Service Type</th>
+                                <th class="px-6 py-3 font-medium">Applicant</th>
+                                <th class="px-6 py-3 font-medium">Status</th>
+                                <th class="px-6 py-3 font-medium">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="official-table-body" class="divide-y divide-slate-200 dark:divide-slate-700">
+                            <!-- Rows via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="page-admin-dashboard" class="page">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <div class="mb-8">
+                    <h1 class="text-2xl font-bold">Admin Control Center</h1>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="card p-6 border-t-4 border-t-primary-500">
+                        <p class="text-sm font-medium text-slate-500 uppercase">Total Citizens</p>
+                        <p class="text-3xl font-bold mt-1">1,452</p>
+                    </div>
+                    <div class="card p-6 border-t-4 border-t-blue-500">
+                        <p class="text-sm font-medium text-slate-500 uppercase">Total Requests</p>
+                        <p class="text-3xl font-bold mt-1">8,430</p>
+                    </div>
+                    <div class="card p-6 border-t-4 border-t-green-500">
+                        <p class="text-sm font-medium text-slate-500 uppercase">Completed</p>
+                        <p class="text-3xl font-bold mt-1">5,201</p>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h2 class="font-bold text-lg mb-4">Quick Actions</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800/50">Manage Depts</div>
+                        <div class="p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800/50">Manage Staff</div>
+                        <div class="p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800/50">System Logs</div>
+                        <div class="p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800/50">Form Config</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Application Details -->
+        <div id="page-application-details" class="page">
+            <div class="max-w-5xl mx-auto px-4 py-8">
+                <button onclick="goToDashboard()" class="text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center mb-6 font-medium">
+                    <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i> Back
+                </button>
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <div class="flex items-center gap-3 mb-1">
+                            <span id="detail-appid" class="font-mono text-sm bg-primary-100 text-primary-800 dark:bg-primary-900/40 dark:text-primary-300 font-bold px-3 py-1 rounded"></span>
+                            <span id="detail-status" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border uppercase tracking-wider"></span>
+                        </div>
+                        <h1 id="detail-title" class="text-3xl font-bold"></h1>
+                    </div>
+                    
+                    <div id="official-controls" class="hidden flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-700">
+                        <select id="status-select" class="input-field py-1.5 mt-0 w-auto text-sm">
+                            <option>Submitted</option>
+                            <option>Under Review</option>
+                            <option>Processing</option>
+                            <option>Approved</option>
+                            <option>Rejected</option>
+                            <option>Completed</option>
+                        </select>
+                        <button onclick="updateStatus()" class="btn py-1.5 text-sm">Update</button>
+                    </div>
+                </div>
+                
+                <div class="card p-6">
+                    <h2 class="text-xl font-bold mb-4 border-b border-slate-200 dark:border-slate-700 pb-2">Description / Info</h2>
+                    <p id="detail-desc" class="text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg"></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
